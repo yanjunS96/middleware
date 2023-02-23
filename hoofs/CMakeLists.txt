@@ -7,6 +7,7 @@ set(PLATFORMPRO_NAME reload_platform)
 
 set(SOURCE_FILES
         ./source/logger/mlog_impl.cpp
+        ./source/file_read/file_reader.cpp
         )
 include_directories(
         ./include
