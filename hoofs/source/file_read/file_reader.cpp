@@ -14,5 +14,17 @@ FileReader::FileReader(const std::string &f_filename, const std::string &f_fileP
     m_fileStream.open(m_file, std::fstream::in);
 
     if(!isOpen())
-    {}
+    {
+        MLOG_ERROR("file open failed! file_name: {}", f_filename);
+    }
+}
+
+bool FileReader::isOpen() const noexcept
+{
+    return m_fileStream.is_open();
+}
+
+bool FileReader::readLine(std::string &f_string) noexcept
+{
+    return static_cast<bool>(std::getline(m_fileStream, f_string));
 }
