@@ -18,7 +18,7 @@ namespace middleware{
             FileReader& operator=(const FileReader&) = delete;
             FileReader& operator=(FileReader&&) = delete;
 
-            ~FileReader()noexcept = default;
+            ~FileReader()noexcept;
             bool isOpen() const noexcept;
             bool readLine(std::string & f_string) noexcept;
 

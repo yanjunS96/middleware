@@ -28,3 +28,7 @@ bool FileReader::readLine(std::string &f_string) noexcept
 {
     return static_cast<bool>(std::getline(m_fileStream, f_string));
 }
+
+FileReader::~FileReader() noexcept {
+    m_fileStream.close();
+}
