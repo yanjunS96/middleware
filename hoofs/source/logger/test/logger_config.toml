@@ -1,0 +1,19 @@
+# Adapt this config to your needs and rename it to e.g. roudi_config.toml
+[general]
+version = 1.0
+
+[[config_info]]
+module_name = "test"
+console_level = "debug"
+file_level = "debug"
+root_path = "./"
+max_file_size = "10m"
+max_file_num = 3
+
+[[config_info]]
+module_name = "process1"
+console_level = "debug"
+file_level = "debug"
+root_path = "./"
+max_file_size = "10m"
+max_file_num = 3
