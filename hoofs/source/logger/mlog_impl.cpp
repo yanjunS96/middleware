@@ -7,7 +7,7 @@ namespace middleware
     namespace hoofs{
         namespace log
         {
-#define MAX_LOGGER_SIZE (8<<10) //8kB
+#define MAX_LOGGER_SIZE (2<<10)
             /*spdlog::logger *Logger::logger_ = nullptr;
             YAML::Node Logger::config_;*/
             Logger::Logger()
@@ -220,6 +220,37 @@ namespace middleware
                     throw std::logic_error("Unhandled prefix '" + m[2].str() + "'.");
                 }
                 return d * mult;
+            }
+
+            void Logger::LogLevel(const log::LogLevel loglevel)
+            {
+                spdlog::level::level_enum log_level{spdlog::level::warn};
+                switch (loglevel) {
+                    case log::LogLevel::OFF:
+                        log_level = spdlog::level::off;
+                        break;
+                    case log::LogLevel::CRITICAL:
+                        log_level = spdlog::level::critical;
+                        break;
+                    case log::LogLevel::ERROR:
+                        log_level = spdlog::level::err;
+                        break;
+                    case log::LogLevel::WARN:
+                        log_level = spdlog::level::warn;
+                        break;
+                    case log::LogLevel::INFO:
+                        log_level = spdlog::level::info;
+                        break;
+                    case log::LogLevel::DEBUG:
+                        log_level = spdlog::level::debug;
+                        break;
+                    default:
+                        break;
+                }
+
+                logger_->set_level(log_level);
+
+                return;
             }
         } // namespace log
     }

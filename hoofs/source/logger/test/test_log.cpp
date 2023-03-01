@@ -1,4 +1,5 @@
 #include "logger/mlog.h"
+#include "file_read/file_reader.hpp"
 #include <unistd.h>
 
 int main(int argc, char* argv[])
@@ -8,12 +9,17 @@ int main(int argc, char* argv[])
 
     MLOG_INFO("hello, world:{}", 12345);
 
+    middleware::hoofs::FileReader fileReader("logger_config.toml");
+    std::string read_val;
+
     for (;;)
     {
-        MLOG_DEBUG("hello, world");
+        fileReader.readLine(read_val);
+
+        MLOG_DEBUG("hello, world,{}",read_val);
         MLOG_INFO("hello, world");
         MLOG_WARN("hello, world");
-        MLOG_ERROR("hello, world");
+        MLOG_ERROR("hello, world{}",read_val);
         MLOG_CRITICAL("hello, world");
 //        decltype()
 

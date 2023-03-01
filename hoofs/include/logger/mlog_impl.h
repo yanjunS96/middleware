@@ -15,10 +15,20 @@ namespace middleware
     namespace hoofs{
         namespace log
         {
+            enum class LogLevel : uint8_t
+            {
+                OFF = 0,
+                CRITICAL,
+                ERROR,
+                WARN,
+                INFO,
+                DEBUG
+            };
+
             class Logger final
             {
             public:
-                ~Logger() = default;
+                ~Logger()noexcept = default;
                 template <typename... Args>
                 void Debug(const char *file, const int line, const char *func, Args &&... args);
                 template <typename... Args>
@@ -30,6 +40,9 @@ namespace middleware
                 template <typename... Args>
                 void Critical(const char *file, const int line, const char *func, Args &&... args);
                 void Init(const std::string& config_file, const std::string name = "default");
+
+                void LogLevel(const log::LogLevel);
+
             private:
                 template <typename... Args>
                 void Log(const char *file, const int line, const char *func,
