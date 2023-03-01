@@ -27,6 +27,13 @@ middleware::hoofs::cxx_stl::concatenate(const T1& t1, const T2& t2, const Args&.
     return concatenate(concatenate(t1,t2),args...);
 }
 
+template<typename T1,typename T2>
+typename std::enable_if<(internal::IsCharArray<T1>::value && internal::IsCxxString<T2>::value) || (internal::IsCxxString<T1>::value && internal::IsCharArray<T2>::value) || (internal::IsCxxString<T1>::value && internal::IsCxxString<T2>::value), string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+middleware::hoofs::cxx_stl::operator+(const T1 &t1, const T2 &t2) noexcept
+{
+    return concatenate(t1,t2);
+}
+
 template<uint64_t Capacity>
 inline string<Capacity>::string(const string &other) noexcept
 {
@@ -279,30 +286,20 @@ inline string<Capacipy>::operator std::string() const noexcept
     return std::string(this->c_str());
 }
 
-/*
 template<uint64_t Capacipy>
 template<typename T>
-inline string<Capacipy>& string<Capacipy>::operator+=(const T & value) noexcept
+inline string<Capacipy>& string<Capacipy>::operator+=(const T & t) noexcept
 {
-    uint64_t valueSize = sizeof(value);
-    if (Capacipy - size() > valueSize)
-    {
-        memcpy(&(m_rawstring[m_rawstringSize]), static_cast<const char *>(&value), valueSize);
-        m_rawstringSize += valueSize;
-        m_rawstring[m_rawstringSize] = '\0';
-        return *this;
-    }
-    else
-    {
-        string<valueSize + Capacipy> str;
-        memcpy(str.c_str(), this->c_str(), this->size());
-        memcpy(str.c_str() + this->size(), static_cast<const char *>(&value), valueSize);
-        str.m_rawstringSize = this->size() + valueSize;
-        str.m_rawstring[str.m_rawstringSize] = '\0';
-        return str;
-    }
+    auto value = (internal::IsCharArray<T>::value || internal::IsCxxString<T>::value);
+    static_assert(value,"T type is error!");
+    auto size_ = internal::GetSize<T>::call(t);
+    auto data_ = internal::GetData<T>::call(t);
+    static_assert(Capacipy-size() >= size_, "size is larger than this string");
+    memcpy(&(m_rawstring[m_rawstringSize]), data_, size_);
+    m_rawstringSize += size_;
+    m_rawstring[m_rawstringSize] = '\0';
+    return *this;
 }
-*/
 template<uint64_t Capacity>
 template<typename T>
 inline typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, middleware::hoofs::cxx_stl::string<Capacity> &>::type
@@ -427,4 +424,46 @@ inline string<Capacity>& string<Capacity>::move(string<N> &&rhs) noexcept
     rhs.m_rawstring[0U] = '\0';
     rhs.m_rawstringSize = 0U;
     return *this;
+}
+
+template<uint64_t Capacity>
+bool middleware::hoofs::cxx_stl::operator==(const std::string& lhs, const string<Capacity>& rhs) noexcept
+{
+    if (lhs.size() != rhs.size()){return false;}
+    return (0 == memcmp(lhs.c_str(), rhs.c_str(), rhs.size()));
+}
+template<uint64_t Capacity>
+bool middleware::hoofs::cxx_stl::operator!=(const std::string& lhs, const string<Capacity>& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+template<uint64_t Capacity>
+bool middleware::hoofs::cxx_stl::operator==(const string<Capacity>& rhs, const std::string& lhs) noexcept
+{
+    return (lhs == rhs);
+}
+template<uint64_t Capacity>
+bool middleware::hoofs::cxx_stl::operator!=(const string<Capacity>& rhs, const std::string& lhs) noexcept
+{
+    return !(rhs == lhs);
+}
+template<uint64_t Capacity>
+bool middleware::hoofs::cxx_stl::operator==(const char *const lhs, const string<Capacity> &rhs) noexcept
+{
+    /*if (strlen(lhs) != rhs.size())
+    {return false;}
+    return (0 == memcmp(lhs, rhs.c_str(), rhs.size()));*/
+    std::string(const_cast<const char *>(lhs));
+    return (lhs == rhs);
+}
+template<uint64_t Capacity>
+bool middleware::hoofs::cxx_stl::operator!=(const char *const lhs, const string<Capacity> &rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+template<uint64_t Capacity>
+std::ostream & middleware::hoofs::cxx_stl::operator<<(std::ostream &stream, const string<Capacity> &str) noexcept
+{
+    stream << str.c_str();
+    return stream;
 }

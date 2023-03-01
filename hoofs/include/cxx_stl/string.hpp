@@ -26,6 +26,13 @@ namespace middleware{
                     string<internal::SumCapa<T1,T2,Args...>::value>>::type
             concatenate(const T1& t1, const T2& t2, const Args&... args) noexcept;
 
+            template<typename T1,typename T2>
+            typename std::enable_if<(internal::IsCharArray<T1>::value && internal::IsCxxString<T2>::value)
+                        || (internal::IsCxxString<T1>::value && internal::IsCharArray<T2>::value)
+                        || (internal::IsCxxString<T1>::value && internal::IsCxxString<T2>::value)
+                        ,string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+            operator+(const T1& t1, const T2& t2)noexcept;
+            
             template<uint64_t Capacity>
             class string{
                 static_assert(Capacity>0U, "The capacity of the fixed string must be greater than 0!");
@@ -89,8 +96,8 @@ namespace middleware{
                 constexpr bool empty() const noexcept;
                 operator std::string() const noexcept;
 
-                /*template<typename T>
-                string& operator+=(const T&) noexcept;*/
+                template<typename T>
+                string& operator+=(const T&) noexcept;
 
                 template<typename T>
                 typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, string&>::type
@@ -134,6 +141,21 @@ namespace middleware{
                 char m_rawstring[Capacity + 1U]{'\0'};
                 uint64_t m_rawstringSize{0U};
             };
+
+            template<uint64_t Capacity>
+            inline bool operator==(const std::string& lhs, const string<Capacity>& rhs) noexcept;
+            template<uint64_t Capacity>
+            inline bool operator==(const string<Capacity>& rhs, const std::string& lhs) noexcept;
+            template<uint64_t Capacity>
+            inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs) noexcept;
+            template<uint64_t Capacity>
+            inline bool operator!=(const string<Capacity>& rhs, const std::string& lhs) noexcept;
+            template<uint64_t Capacity>
+            inline bool operator==(const char* const lhs, const string<Capacity>& rhs) noexcept;
+            template<uint64_t Capacity>
+            inline bool operator!=(const char* const lhs, const string<Capacity>& rhs) noexcept;
+            template<uint64_t Capacity>
+            inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
         }
     }
 }
