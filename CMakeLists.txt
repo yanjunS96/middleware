@@ -10,4 +10,4 @@ set(STL_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/stl_)
 message(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(hoofs)
-add_subdirectory(posh)
+#add_subdirectory(posh)

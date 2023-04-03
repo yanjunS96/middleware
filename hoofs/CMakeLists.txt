@@ -36,6 +36,7 @@ target_link_libraries(test_log
         )
 
 add_subdirectory(./thirdparty/spdlog)
+add_subdirectory(./thirdparty/yaml-cpp)
 #add_subdirectory(./include/platform)
 
 ################################ install object ######################################

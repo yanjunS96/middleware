@@ -178,3 +178,12 @@ if (YAML_CPP_CLANG_FORMAT_EXE)
     COMMENT "Running clang-format"
     VERBATIM)
 endif()
+
+message(BUILD_SHARED_LIBS: ${BUILD_SHARED_LIBS})
+install(TARGETS yaml-cpp
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/hoofs/lib)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/hoofs/include/yaml-cpp
+        FILES_MATCHING PATTERN "*.h"
+        )
+

@@ -1,0 +1,29 @@
+---
+-
+  module_name: spi
+  config:
+    verfile: ./motovis_version
+    synctime: 30
+    spi_1:
+      dev: /dev/spidev1.0
+      speed: 1000000
+      bits: 8
+      delay: 0
+      mode: SPI_MODE_0
+      translen: 512
+    spi_2:
+      dev: /dev/spidev2.0
+      speed: 1000000
+      bits: 8
+      delay: 0
+      mode: SPI_MODE_0
+      translen: 1024
+    doip:
+      ServerPort: 13400
+      ClientPort: 13401
+      ProtocolVersion: 2
+      DoIpAnnounceNum: 3
+      LocalAddress: 0x0017
+      doipMaxRequestBytes: 64
+      FurtherActionReq: 0
+      Vin: 00000000000000000

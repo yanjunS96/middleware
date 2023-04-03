@@ -323,7 +323,9 @@ if(SPDLOG_INSTALL)
 endif()
 
 message(BUILD_SHARED_LIBS: ${BUILD_SHARED_LIBS})
-if(BUILD_SHARED_LIBS)
     install(TARGETS ${PROJECT_NAME}
             DESTINATION ${CMAKE_INSTALL_PREFIX}/hoofs/lib)
-endif()
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/spdlog
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/hoofs/include
+        FILES_MATCHING PATTERN "*.h"
+        )

@@ -1,0 +1,73 @@
+---
+-
+  module_name: app1
+  log:
+    console_level: debug
+    file_level: debug
+    root_path: ./
+    max_file_size: 10m
+    max_file_num: 3
+-
+  module_name: app2
+  log:
+    console_level: debug
+    file_level: warn
+    root_path: ./
+    max_file_size: 10m
+    max_file_num: 3
+-
+  module_name: app3
+  log:
+    console_level: debug
+    file_level: warn
+    root_path: ./
+    max_file_size: 10m
+    max_file_num: 3
+-
+  module_name: app4
+  log:
+    console_level: debug
+    file_level: warn
+    root_path: ./
+    max_file_size: 10m
+    max_file_num: 3
+-
+  module_name: app5
+  log:
+    console_level: debug
+    file_level: warn
+    root_path: ./
+    max_file_size: 10m
+    max_file_num: 3
+-
+  module_name: app6
+  log:
+    console_level: debug
+    file_level: warn
+    root_path: ./
+    max_file_size: 10m
+    max_file_num: 3
+-
+  module_name: app7
+  log:
+    console_level: debug
+    file_level: info
+    root_path: ./
+    max_file_size: 10m
+    max_file_num: 3
+-
+  module_name: app8
+  log:
+    console_level: debug
+    file_level: warn
+    root_path: ./
+    max_file_size: 10m
+    max_file_num: 3
+-
+  module_name: test
+  log:
+    console_level: debug
+    file_level: debug
+    root_path: ./
+    max_file_size: 100m
+    max_file_num: 3
