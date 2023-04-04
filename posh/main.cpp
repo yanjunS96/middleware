@@ -85,20 +85,20 @@ int main(int argc, const char *argv[])
 
 #if 0 //关闭 spi1
     //1. 从文件解析需要的配置参数 并实例化功能类对象
-    SpiInfo config_1 = SpiConfig((SpiMold::SPI1)).parseYaml();
+    SpiInfo config_1 = SpiConfig((SpiMold::SPI1)).parseYaml("./SpiConfig.yaml");
     //实例化功能类对象
 //        config_1.m_capacity = sizeof(SpiTxInfo); //暂时不支持传输字段修改
     SpiDevOne spiDevOne(config_1);
     spiDevOne.StartTask();
 #endif
 #if 0 //关闭 spi2
-    SpiDevTwo spiDevTwo(SpiConfig((SpiMold::SPI2)).parseYaml());
+    SpiDevTwo spiDevTwo(SpiConfig((SpiMold::SPI2)).parseYaml("./SpiConfig.yaml"));
     spiDevTwo.StartTask();
 #endif
         //DoIp协议
 #if 1 //暂不开启 DoIp 的功能
     DoIpInfoPtr doIpInfo(new DoIpInfo);
-    DoipController doipcontrol(DoIpConfig(doIpInfo).parseYaml());
+    DoipController doipcontrol(DoIpConfig(doIpInfo).parseYaml("./SpiConfig.yaml"));
 #endif
     while (!isQuit)
     {

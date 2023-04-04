@@ -28,14 +28,14 @@ namespace motovis{
                     YAML::Node _config = YAML::LoadFile(_file);
                     for (auto config : _config)
                     {
-                        if (config["module_name"].IsNull())
+                        if (!config["module_name"].IsDefined())
                         {
                             MLOG_ERROR("YAML have not module_name node!");
                         }
                         else
                         {
                             std::string module_name = config["module_name"].as<std::string>();
-                            if(module_name == name && !config["config"].IsNull())
+                            if(module_name == name && config["config"].IsDefined())
                             {
                                 parseConfig(config["config"]);
                             }

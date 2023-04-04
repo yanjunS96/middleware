@@ -40,7 +40,10 @@ namespace motovis{
                         else {return NODE_SPI1;}
                     }())
             {}
-            virtual ~SpiConfig(){}
+            virtual ~SpiConfig()
+            {
+                MLOG_INFO("Spi parse finish!");
+            }
 
             SpiInfo parseYaml(const std::string& file = "./SpiConfig.yaml")
             {
@@ -51,21 +54,21 @@ namespace motovis{
         protected:
             virtual bool parseConfig(const YAML::Node& config_) override
             {
-                if (!config_["verfile"].IsNull())
+                if (config_["verfile"].IsDefined())
                 {
                     m_spiInfo.m_versionFile = config_["verfile"].as<std::string>();
                 }
 
-                if (!config_[m_spiMold].IsNull())
+                if (config_[m_spiMold].IsDefined())
                 {
                     auto spiconfig = config_[m_spiMold];
-                    if (!spiconfig["speed"].IsNull()) { m_spiInfo.m_nSpeed = spiconfig["speed"].as<uint32_t>(); }
-                    if (!spiconfig["bits"].IsNull()) { m_spiInfo.m_cBits = spiconfig["bits"].as<uint32_t>(); }
-                    if (!spiconfig["delay"].IsNull()) { m_spiInfo.m_nDelay = spiconfig["delay"].as<uint32_t>(); }
-                    if (!spiconfig["mode"].IsNull()) {
+                    if (spiconfig["speed"].IsDefined()) { m_spiInfo.m_nSpeed = spiconfig["speed"].as<uint32_t>(); }
+                    if (spiconfig["bits"].IsDefined()) { m_spiInfo.m_cBits = spiconfig["bits"].as<uint32_t>(); }
+                    if (spiconfig["delay"].IsDefined()) { m_spiInfo.m_nDelay = spiconfig["delay"].as<uint32_t>(); }
+                    if (spiconfig["mode"].IsDefined()) {
                         m_spiInfo.m_cSpiMode = m_spiMode.find(spiconfig["mode"].as<std::string>())->second;
                     }
-                    if (!spiconfig["dev"].IsNull()) {
+                    if (spiconfig["dev"].IsDefined()) {
                         auto dev = spiconfig["dev"].as<std::string>();
                         //spi初始化
                         m_spiInfo.m_fd = SpiMessInit(dev.data(),
@@ -73,7 +76,7 @@ namespace motovis{
                                                      m_spiInfo.m_cBits,
                                                      m_spiInfo.m_nSpeed);
                     }
-                    if (!spiconfig["translen"].IsNull()) { m_spiInfo.m_capacity = spiconfig["translen"].as<uint32_t>(); }
+                    if (spiconfig["translen"].IsDefined()) { m_spiInfo.m_capacity = spiconfig["translen"].as<uint32_t>(); }
                     MLOG_INFO("parseYamlConfig,{} speed:{},bits:{},delay:{}, mode:{}, m_fd:{}"
                         ,m_spiInfo.m_capacity ,m_spiInfo.m_nSpeed, m_spiInfo.m_cBits,m_spiInfo.m_nDelay
                         ,m_spiInfo.m_cSpiMode,m_spiInfo.m_fd);

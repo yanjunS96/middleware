@@ -57,26 +57,26 @@ namespace motovis{
 //                MLOG_INFO("info value!");
             }
 
-            void SetEid(const std::string & id)
+            void SetEid(const uint64_t & id)
             {
 
-                Eid[0] = id.at(0);
-                Eid[1] = id.at(1);
-                Eid[2] = id.at(2);
-                Eid[3] = id.at(3);
-                Eid[4] = id.at(4);
-                Eid[5] = id.at(5);
+                Eid[0] = (id & 0xFF);
+                Eid[1] = ((id>>8) & 0xFF);
+                Eid[2] = ((id>>16) & 0xFF);
+                Eid[3] = ((id>>24) & 0xFF);
+                Eid[4] = ((id>>32) & 0xFF);
+                Eid[5] = ((id>>40) & 0xFF);
                 MLOG_INFO("get Eid :{}, {} {} {} {} {} {}",id,Eid[0],Eid[1],Eid[2],Eid[3],Eid[4],Eid[5]);
             }
 
-            void SetGid(const std::string & id)
+            void SetGid(const uint64_t & id)
             {
-                Gid[0] = id.at(0);
-                Gid[1] = id.at(1);
-                Gid[2] = id.at(2);
-                Gid[3] = id.at(3);
-                Gid[4] = id.at(4);
-                Gid[5] = id.at(5);
+                Gid[0] = (id & 0xFF);
+                Gid[1] = ((id>>8) & 0xFF);
+                Gid[2] = ((id>>16) & 0xFF);
+                Gid[3] = ((id>>24) & 0xFF);
+                Gid[4] = ((id>>32) & 0xFF);
+                Gid[5] = ((id>>40) & 0xFF);
                 MLOG_INFO("get Gid :{}, {} {} {} {} {} {}",id,Gid[0],Gid[1],Gid[2],Gid[3],Gid[4],Gid[5]);
             }
         };
@@ -88,29 +88,26 @@ namespace motovis{
         public:
             DoIpConfig(DoIpInfoPtr _info):YamlParse(), m_info(nullptr != _info? _info: throw std::out_of_range("Invalid DoIpInfoPtr"))
             {}
-            virtual ~DoIpConfig(){}
+            virtual ~DoIpConfig()
+            {
+                MLOG_INFO("DoIp parse finish!");
+            }
 
             DoIpInfoPtr parseYaml(const std::string& file = "./SpiConfig.yaml")
             {
-//                DoIpConfig::readYaml(file, "spi");
+                DoIpConfig::readYaml(file, "spi");
                 return m_info;
             }
         protected:
             virtual bool parseConfig(const YAML::Node& config_) override
             {
-                if (config_["doip"].IsNull())
-                {
-                    MLOG_ERROR("YAML file no doip node");
-                    return false;
-                }
-
-                if (!config_["doip"].IsNull())
+                if (config_["doip"].IsDefined())
                 {
                     auto yamlDoIp = config_["doip"];
-                    if (!yamlDoIp["ServerPort"].IsNull()) { m_info->ServerPort = yamlDoIp["ServerPort"].as<int>(); }
-                    if (!yamlDoIp["ClientPort"].IsNull()) { m_info->ClientPort = yamlDoIp["ClientPort"].as<int>(); }
-                    if (!yamlDoIp["ProtocolVersion"].IsNull()) { m_info->ProtocolVersion = yamlDoIp["ProtocolVersion"].as<uint8_t>(); }
-                    if (!yamlDoIp["LocalAddress"].IsNull()) { m_info->LocalAddress = [&]()->uint16_t {
+                    if (yamlDoIp["ServerPort"].IsDefined()) { m_info->ServerPort = yamlDoIp["ServerPort"].as<int>(); }
+                    if (yamlDoIp["ClientPort"].IsDefined()) { m_info->ClientPort = yamlDoIp["ClientPort"].as<int>(); }
+                    if (yamlDoIp["ProtocolVersion"].IsDefined()) { m_info->ProtocolVersion = yamlDoIp["ProtocolVersion"].as<uint8_t>(); }
+                    if (yamlDoIp["LocalAddress"].IsDefined()) { m_info->LocalAddress = [&]()->uint16_t {
                             auto address = yamlDoIp["LocalAddress"].as<std::string>();
                             std::string::size_type index = address.find("0x");
                             uint16_t ret_num = 0x0017;
@@ -131,15 +128,15 @@ namespace motovis{
                             }
                             return ret_num;
                         }(); }
-                    if (!yamlDoIp["DoIpAnnounceNum"].IsNull()) { m_info->DoIpAnnounceNum = yamlDoIp["DoIpAnnounceNum"].as<uint8_t>(); }
-                    if (!yamlDoIp["FurtherActionReq"].IsNull()) { m_info->FurtherActionReq = yamlDoIp["FurtherActionReq"].as<uint8_t>(); }
-                    /*if (!yamlDoIp["Gid"].IsNull()) {
-                        auto Gid = yamlDoIp["Gid"].as<std::string>();
+                    if (yamlDoIp["DoIpAnnounceNum"].IsDefined()) { m_info->DoIpAnnounceNum = yamlDoIp["DoIpAnnounceNum"].as<uint8_t>(); }
+                    if (yamlDoIp["FurtherActionReq"].IsDefined()) { m_info->FurtherActionReq = yamlDoIp["FurtherActionReq"].as<uint8_t>(); }
+                    if (yamlDoIp["Gid"].IsDefined()) {
+                        auto Gid = yamlDoIp["Gid"].as<uint64_t>();
                         m_info->SetGid(Gid); }
-                    if (!yamlDoIp["Eid"].IsNull()) {
-                        auto Eid = yamlDoIp["Eid"].as<std::string>();
-                        m_info->SetEid(Eid); }*/
-                    if (!yamlDoIp["Vin"].IsNull())
+                    if (yamlDoIp["Eid"].IsDefined()) {
+                        auto Eid = yamlDoIp["Eid"].as<uint64_t>();
+                        m_info->SetEid(Eid); }
+                    if (yamlDoIp["Vin"].IsDefined())
                     {
                         auto vin = yamlDoIp["Vin"].as<std::string>();
                         if (cVinSize == vin.size())
@@ -152,7 +149,7 @@ namespace motovis{
                             MLOG_ERROR("vin_size: {} is not 17,use default vin",vin.size());
                         }
                     }
-                    if (!yamlDoIp["doipMaxRequestBytes"].IsNull()) { m_info->doipMaxRequestBytes = yamlDoIp["doipMaxRequestBytes"].as<int>(); }
+                    if (yamlDoIp["doipMaxRequestBytes"].IsDefined()) { m_info->doipMaxRequestBytes = yamlDoIp["doipMaxRequestBytes"].as<int>(); }
                     MLOG_INFO("DoIpYamlConfig,ServerPort:{},ClientPort:{},ProtocolVersion:{},LocalAddress:{},"
                               "DoIpAnnounceNum:{},FurtherActionReq:{},{},Vin:{}"
                             ,m_info->ServerPort ,m_info->ClientPort, m_info->ProtocolVersion,m_info->LocalAddress

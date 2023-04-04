@@ -21,7 +21,7 @@ namespace motovis{
         class TcpConnect{
         public:
             TcpConnect():tcpSocket(-1){}
-            TcpConnect(int tcpSocket):tcpSocket(tcpSocket){ }
+            TcpConnect(int tcpSocket, struct sockaddr_in & addr):tcpSocket(tcpSocket),m_addr(addr){ }
             virtual ~TcpConnect(){ closeSock();}
 
             int RecvTcpMessage(DoIpParsePtr) noexcept;
@@ -31,10 +31,13 @@ namespace motovis{
 
             int recvOneMessage( char* message, int messageLength) noexcept;
 
+            void reloadConnect(int, struct sockaddr_in &) noexcept;
+
         protected:
             int closeSock();
         private:
             int tcpSocket;
+            struct sockaddr_in m_addr;
 
             SerialVecBuff sendVal; //需要发送的数据
             SerialVecBuff recvVal; //接收的数据

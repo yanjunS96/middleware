@@ -10,7 +10,6 @@ int TcpConnect::RecvTcpMessage(DoIpParsePtr ptr) noexcept
         return -1;
     }
     sendVal.clear();
-    recvVal.clear();
     int bytes{0};
     DoIpHeader header{0};
 
@@ -145,6 +144,7 @@ int TcpConnect::SendTcpMessage(const char* message, int messageLength) noexcept
             else if(EPIPE == errno)
             {
                 MLOG_ERROR("##error##The socket is shut down for writing, or the socket is connection-mode and is no longer connected. In the latter case, and if the socket is of type SOCK_STREAM, a SIGPIPE signal is generated to the calling thread.");
+//                closeSock();
                 break;
             }
             else if(EWOULDBLOCK == errno)
@@ -232,9 +232,16 @@ int TcpConnect::recvOneMessage(char *message, int messageLength) noexcept
             payloadPos += readBytes;
             remainingPayload -= readBytes;
         }
+//        sleep(10);
     }
 
     return payloadPos;
+}
+
+void TcpConnect::reloadConnect(int fd, struct sockaddr_in & addr) noexcept
+{
+    tcpSocket = fd;
+    memmove(&m_addr, &addr, sizeof(m_addr));
 }
 
 int TcpConnect::closeSock()
@@ -267,7 +274,7 @@ DoIPServer::DoIPServer(const DoIpInfoPtr _info) noexcept
     }
 
     UdpInit(); //不可放入线程,否则 访问 p_info 会 dump
-//    TcpInit();
+    TcpInit();
 }
 
 DoIPServer::~DoIPServer() noexcept
@@ -284,9 +291,9 @@ void DoIPServer::StartServer(const DoIpParsePtr ptr) noexcept
     {
         throw std::out_of_range("TcpConnect DoIpParsePtr ptr is nullptr!");
     }
-    MLOG_INFO("udp_socket:{}!",m_udp_socket);
+//    MLOG_INFO("udp_socket:{}!",m_udp_socket);
     std::thread(std::bind(&DoIPServer::UdpServerThread, this, ptr)).detach();
-//    std::thread(std::bind(&DoIPServer::TcpServerThread, this, ptr)).detach();
+    std::thread(std::bind(&DoIPServer::TcpServerThread, this, ptr)).detach();
 }
 
 /*
@@ -363,10 +370,12 @@ void DoIPServer::TcpServerThread(const DoIpParsePtr parse) noexcept
             struct sockaddr_in addr;
             socklen_t len = sizeof(addr);
             fd = accept(m_tcp_socket, (struct sockaddr *) &addr, &len);
-            if (0 >= fd) {
+            if (0 >= fd)
+            {
                 MLOG_ERROR("accept failed, error:{} {}", errno, strerror(errno));
                 continue;
-            } else if (MAX_FD <= m_clientNum) {
+            } else if (MAX_FD <= m_clientNum)
+            {
                 MLOG_ERROR("Sorry, Clients is full!");
                 continue;
             }
@@ -374,14 +383,15 @@ void DoIPServer::TcpServerThread(const DoIpParsePtr parse) noexcept
             if (nullptr == this->m_client[fd])
             {
                 m_clientNum++;
-                this->m_client[fd] = ConnectPtr(new TcpConnect(fd), [&](TcpConnect *p) {
+                this->m_client[fd] = ConnectPtr(new TcpConnect(fd,addr), [&](TcpConnect *p) {
                     delete p;
                     this->m_client[fd] = nullptr;
                     m_clientNum--;
                 });
             } else {
-//                    this->m_client[fd]->init(fd, addr);
+                this->m_client[fd]->reloadConnect(fd,addr);
             }
+            MLOG_WARN("{}, have a new TcpClient connect, now client_num:{}",timems, m_clientNum);
 
             FD_SET(fd, &m_socketSet);  /*将套接字加入到监听的 select 套接字集合*/
             _maxfd = (_maxfd > fd) ? _maxfd : fd;
@@ -401,7 +411,11 @@ void DoIPServer::TcpServerThread(const DoIpParsePtr parse) noexcept
         {
             int tem_fd = client_p->first;
             /* 如果这个是否需要读 */
-            if ((nullptr == client_p->second) || (-1 != tem_fd)) { continue; }
+            if ((nullptr == client_p->second) || (0 > tem_fd))
+            {
+                MLOG_ERROR("tem_fd:{}", tem_fd);
+                continue;
+            }
 
             if (FD_ISSET(tem_fd, &readSet)) {
                 //读数据, 解析
@@ -414,6 +428,7 @@ void DoIPServer::TcpServerThread(const DoIpParsePtr parse) noexcept
         /*500ms循环一次*/
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
+    MLOG_ERROR("TcpServerThread exit,{}!",m_tcp_socket);
 }
 
 bool DoIPServer::UdpInit() noexcept
@@ -434,6 +449,14 @@ bool DoIPServer::UdpInit() noexcept
         memset( (void*)&serveraddr,0, sizeof(struct sockaddr_in) );
 //        MLOG_INFO("info value!");
 //        setNonBlocking(m_udp_socket);
+        //设置端口复用
+        int optval = 1;
+        if (-1 == (setsockopt(m_udp_socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(int))))
+        {
+            MLOG_ERROR("setsockopt failed, errno:{} {}",errno, strerror(errno));
+            closeUdpSocket();
+            return false;
+        }
 
         serveraddr.sin_family = AF_INET;
         MLOG_INFO("info value!");
@@ -462,7 +485,7 @@ void DoIPServer::UdpServerThread(const DoIpParsePtr parse) noexcept
         MLOG_ERROR("DoIpParsePtr is nullptr!");
         return;
     }
-    MLOG_INFO("udp_socket:{}!",m_udp_socket);
+//    MLOG_INFO("udp_socket:{}!",m_udp_socket);
     doip::DoIpHeader header;
     struct sockaddr_in clientaddr;
     socklen_t len = sizeof(struct sockaddr_in);

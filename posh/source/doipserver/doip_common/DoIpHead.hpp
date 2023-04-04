@@ -135,6 +135,7 @@ namespace motovis{
                 {
                     data.resize(cHeaderSize + mpayloadLength);
                 }
+                memset(data.data(),0, data.size());
                 data.at(0) = mProtocolVersion;
                 data.at(1) = mverseProtocolVersion;
                 data.at(2) = (static_cast<uint16_t>(mPayloadType) & 0xFF); // L位
